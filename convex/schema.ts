@@ -7,7 +7,7 @@ export default defineSchema({
     description: v.optional(v.string()),
   }),
   tasks: defineTable({
-    projectId: v.id("projects"), //points to a document in the projects table. 
+    projectId: v.id("projects"),
     title: v.string(),
     description: v.string(),
     status: v.union(
@@ -15,8 +15,10 @@ export default defineSchema({
       v.literal("in-progress"),
       v.literal("done"),
     ),
-  }),
-});
+  }).index("by_project", ["projectId"]), // 👀
+});//.index("by_project_status", ["projectId", "status"]) also valid
+//sorts by ["projectId", "_creationTime"] automatically
+
 //one-to-many relationship: one project has many tasks, and each task belongs to one project.
 //if add a task with a projectId that looks like a valid document ID, it will be accepted even if it does not exist
 //not enforce relationship due to Convex as a backend-as-a-service, which does not support foreign key constraints.
