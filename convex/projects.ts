@@ -65,5 +65,6 @@ export const remove = mutation({
     await ctx.db.delete(args.id);
   },
 });
+//orphaned documents --> project table entry gets deleted, but tasks with projectId pointing to that project still exist.
 
 
