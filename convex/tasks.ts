@@ -8,19 +8,21 @@ export const list = query({
   },
 });
 
-export const create = mutation({
-  args: {
-    title: v.string(),
-    description: v.string(),
-  },
-  handler: async (ctx, args) => {
-    await ctx.db.insert("tasks", {
-      title: args.title,
-      description: args.description,
-      status: "todo",
-    });
-  },
-});
+  export const create = mutation({
+    args: {
+     projectId: v.id("projects"),
+      title: v.string(),
+      description: v.string(),
+    },
+    handler: async (ctx, args) => {
+      await ctx.db.insert("tasks", {
+       projectId: args.projectId,
+        title: args.title,
+        description: args.description,
+        status: "todo",
+      });
+    },
+  })
 
 export const updateStatus = mutation({
   args: {

@@ -2,7 +2,12 @@ import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
 
 export default defineSchema({
+  projects: defineTable({
+    name: v.string(),
+    description: v.optional(v.string()),
+  }),
   tasks: defineTable({
+    projectId: v.id("projects"), //points to a document in the projects table. 
     title: v.string(),
     description: v.string(),
     status: v.union(
@@ -12,3 +17,6 @@ export default defineSchema({
     ),
   }),
 });
+//one-to-many relationship: one project has many tasks, and each task belongs to one project.
+//if add a task with a projectId that looks like a valid document ID, it will be accepted even if it does not exist
+//not enforce relationship due to Convex as a backend-as-a-service, which does not support foreign key constraints.
