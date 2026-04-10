@@ -62,9 +62,21 @@ export const remove = mutation({
     id: v.id("projects"),
   },
   handler: async (ctx, args) => {
+    // Delete all tasks belonging to this project
+    const tasks = await ctx.db
+      .query("tasks")
+      .withIndex("by_project", (q) => q.eq("projectId", args.id))
+      .collect();
+
+    for (const task of tasks) {
+      await ctx.db.delete(task._id);
+    }
+
+    // Delete the project itself
     await ctx.db.delete(args.id);
   },
 });
+
 //orphaned documents --> project table entry gets deleted, but tasks with projectId pointing to that project still exist.
 
 
