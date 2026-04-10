@@ -1,18 +1,23 @@
 import { v } from "convex/values";
 import { query, mutation, internalMutation } from "./_generated/server";
 import { internal } from "./_generated/api";
+import { paginationOptsValidator } from "convex/server";
 
 const CASCADE_DELETE_BATCH_SIZE = 100;
 
 
 export const list = query({
-  args: {},
-  handler: async (ctx) => {
+  args: {
+    paginationOpts: paginationOptsValidator,
+  },
+  handler: async (ctx, args) => {
     return await ctx.db
       .query("projects")
       .withIndex("by_deletedAt", (q) => q.eq("deletedAt", undefined))
-      .collect();
-  },
+      .order("desc") //by _creationTime
+      .paginate(args.paginationOpts);//replace .collect(). 
+      // Instead of returning all documents, it returns a page of results along with metadata for fetching the next page.
+  }, //return array of documents (page), isDone, continueCursor to keep track
 });
 
 export const get = query({
@@ -100,6 +105,8 @@ export const deleteProjectCascade = internalMutation({
     await ctx.db.delete(args.id);
   },
 });
+
+
 
 
 //orphaned documents --> project table entry gets deleted, but tasks with projectId pointing to that project still exist.
