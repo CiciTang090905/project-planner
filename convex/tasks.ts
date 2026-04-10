@@ -10,7 +10,7 @@ export const list = query({
 
   export const create = mutation({
     args: {
-     projectId: v.id("projects"),
+      projectId: v.id("projects"),
       title: v.string(),
       description: v.string(),
     },
