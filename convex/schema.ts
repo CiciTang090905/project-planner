@@ -5,7 +5,8 @@ export default defineSchema({
   projects: defineTable({
     name: v.string(),
     description: v.optional(v.string()),
-  }),
+    deletedAt: v.optional(v.number()),
+  }).index("by_deletedAt", ["deletedAt"]), //soft delete implementation, that's only present on deleted documents
   tasks: defineTable({
     projectId: v.id("projects"),
     title: v.string(),

@@ -8,18 +8,23 @@ const CASCADE_DELETE_BATCH_SIZE = 100;
 export const list = query({
   args: {},
   handler: async (ctx) => {
-    return await ctx.db.query("projects").collect();
+    return await ctx.db
+      .query("projects")
+      .withIndex("by_deletedAt", (q) => q.eq("deletedAt", undefined))
+      .collect();
   },
 });
 
 export const get = query({
-  args: { 
-    id: v.id("projects") 
+  args: {
+    id: v.id("projects"),
   },
   handler: async (ctx, args) => {
-    return await ctx.db.get(args.id);
+    const project = await ctx.db.get(args.id);
+    return project && project.deletedAt === undefined ? project : null;
   },
 });
+
 // returns a single project by its _id
 
 export const create = mutation({
@@ -66,14 +71,7 @@ export const remove = mutation({
     id: v.id("projects"),
   },
   handler: async (ctx, args) => {
-    const project = await ctx.db.get(args.id);
-    if (!project) {
-      return;
-    }
-
-    await ctx.scheduler.runAfter(0, internal.projects.deleteProjectCascade, {
-      id: args.id,
-    });
+    await ctx.db.patch(args.id, { deletedAt: Date.now() });
   },
 });
 
